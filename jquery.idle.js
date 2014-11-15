@@ -18,16 +18,16 @@
   $.fn.idle = function(options) {
 
     var defaults = {
-      idle: 60000, //idle time in ms
-      events: 'mousemove keypress mousedown', //events that will trigger the idle resetter
-      onIdle: function(){}, //callback function to be executed after idle time
-      onActive: function(){}, //callback function to be executed after back from idleness
-      onHide: function(){}, //callback function to be executed when window is hidden
-      onShow: function(){}, //callback function to be executed when window is visible
-      keepTracking: false //if you want to keep tracking user even after the first time, set this to true
+      idle         : 60000, //idle time in ms
+      events       : 'mousemove keypress mousedown', //events that will trigger the idle resetter
+      onIdle       : function(){}, //callback function to be executed after idle time
+      onActive     : function(){}, //callback function to be executed after back from idleness
+      onHide       : function(){}, //callback function to be executed when window is hidden
+      onShow       : function(){}, //callback function to be executed when window is visible
+      keepTracking : false //if you want to keep tracking user even after the first time, set this to true
     };
 
-    var idle = false;
+    var idle    = false;
     var visible = true;
 
     var settings = $.extend( {}, defaults, options );
@@ -43,18 +43,22 @@
       return timeout(settings);
     }
 
-    var timeout = function(settings){
+    var timeout = function(settings) {
         var timer = (settings.keepTracking ? setInterval : setTimeout);
-        var id = timer(function(){
-        idle = true;
+        var id    = timer(function(){
+        idle      = true;
         settings.onIdle.call();
-      }, settings.idle);
+      }, 
+      settings.idle);
+
       return id;
     }
 
     return this.each(function(){
       var id = timeout(settings);
-      $(this).on(settings.events, function(e){
+      // BUG BUG: scotg - events are for the window object, some won't work with document object
+      // $(this).on(settings.events, function(e){
+      $(window).on(settings.events, function(e){
         id = resetTimeout(id, settings);
       });
       if(options.onShow || options.onHide){
